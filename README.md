@@ -7,9 +7,9 @@ spree_stripe add stripe payment method to spree commerce. It is designed to be u
 Install
 =======
 
-Install spree_redirects by adding the following to your existing spree site's Gemfile:
+Install spree_stripe by adding the following to your existing spree site's Gemfile:
 
-	gem 'spree_stripe', :git=>"git://github.com/adiastyle/spree-stripe.git"
+	gem 'spree_stripe', :git=>"git://github.com/rietta/spree-stripe.git"
 
 Then run:
 
