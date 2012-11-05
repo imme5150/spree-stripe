@@ -1,5 +1,5 @@
 module Spree
-  class Gateway::Stripe < Spree::Gateway
+  class Gateway::Stripe < Gateway
     preference :login, :string
 
     # Make sure to have Spree::Config[:auto_capture] set to true.
