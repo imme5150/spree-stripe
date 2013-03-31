@@ -3,6 +3,7 @@ SpreeStripe
 
 spree_stripe add stripe payment method to spree commerce. It is designed to be used on our ecommerce http://www.adiastyle.com . For more detail about stripe payment gateway, go to http://www.stripe.com.
 
+**Note**: This gem should only be used in spree 0.70.x. For spree 1.x, please use [spree_gateway](https://github.com/spree/spree_gateway) instead.
 
 Install
 =======
