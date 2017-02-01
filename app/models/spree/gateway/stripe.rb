@@ -2,8 +2,6 @@ module Spree
   class Gateway::Stripe < Gateway
     preference :login, :string
 
-    # Make sure to have Spree::Config[:auto_capture] set to true.
-
     def provider_class
       ActiveMerchant::Billing::StripeGateway
     end
@@ -23,11 +21,11 @@ module Spree
     end
 
     def authorize(money, creditcard, gateway_options)
-      raise "Stripe does not currently support separate auth and capture; ensure Spree::Config[:auto_capture] is set to true"
+      raise "The spree-stripe gem does not currently support separate auth and capture. Either update the gem if you need this functionality or set Spree::Config[:auto_capture] to true"
     end
 
     def capture(authorization, creditcard, gateway_options)
-      raise "Stripe does not currently support separate auth and capture; ensure Spree::Config[:auto_capture] is set to true"
+      raise "The spree-stripe gem does not currently support separate auth and capture. Either update the gem if you need this functionality or set Spree::Config[:auto_capture] to true"
     end
 
     def credit(money, creditcard, response_code, gateway_options)
