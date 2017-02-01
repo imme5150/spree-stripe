@@ -11,7 +11,7 @@ class Spree::Gateway::Stripe < Gateway
 
   def purchase(money, creditcard, gateway_options)
     options = {}
-    options[:description] ||= "Spree Order ID: #{gateway_options[:order_id]}"
+    options[:description] = gateway_options[:description] || "Spree Order ID: #{gateway_options[:order_id]}"
     if customer = creditcard.gateway_customer_profile_id
       options[:customer] = customer
       creditcard = nil
