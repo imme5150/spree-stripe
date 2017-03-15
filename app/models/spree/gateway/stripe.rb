@@ -54,7 +54,7 @@ class Spree::Gateway::Stripe < Gateway
       sources = response.params['sources'].try(:[],'data') || []
       creditcard.update_from_gateway_response!(response.params['id'], sources, user)
     else
-      creditcard.gateway_error(response.message)
+      creditcard.gateway_error(response)
     end
   end
 end
