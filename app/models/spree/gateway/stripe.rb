@@ -1,8 +1,17 @@
 class Spree::Gateway::Stripe < Gateway
-  preference :login, :string
-
   def provider_class
     ActiveMerchant::Billing::StripeGateway
+  end
+
+  def provider
+    ActiveMerchant::Billing::Base.gateway_mode = options[:server].to_sym
+    @provider ||= provider_class.new(login:ENV['STRIPE_API_SECRET_KEY'])
+  end
+
+  def url(path = '')
+    url = 'https://dashboard.stripe.com/'
+    url << 'test/' if preferred_test_mode
+    url << path
   end
 
   def payment_profiles_supported?
@@ -10,13 +19,13 @@ class Spree::Gateway::Stripe < Gateway
   end
 
   def purchase(money, creditcard, gateway_options)
-    options = {}
-    options[:description] = gateway_options[:description] || "Spree Order ID: #{gateway_options[:order_id]}"
-    if customer = creditcard.gateway_customer_profile_id
-      options[:customer] = customer
-      creditcard = nil
-    end
-    provider.purchase(money, creditcard, options)
+    user = gateway_options.delete(:user)
+
+    create_or_update_profile(creditcard, user) if creditcard.number.present?
+
+    gateway_options[:customer] = user.stripe_profile_id
+
+    provider.purchase(money, nil, gateway_options)
   end
 
   def authorize(money, creditcard, gateway_options)
@@ -35,16 +44,17 @@ class Spree::Gateway::Stripe < Gateway
     provider.void(response_code, {})
   end
 
-  def create_profile(payment)
-    return unless payment.source.gateway_customer_profile_id.nil?
+  # This will update a customer if the user already has a Stripe profile ID stored in the DB
+  def create_or_update_profile(creditcard, user)
+    gateway_options = user.gateway_options
+    gateway_options[:billing_address] = { zip: creditcard.zipcode }
 
-    options = {}
-    options[:email] = payment.order.email
-    response = provider.store(payment.source, options)
+    response = provider.store(creditcard, gateway_options)
     if response.success?
-      payment.source.update_attributes!(:gateway_customer_profile_id => response.params['id'])
+      sources = response.params['sources'].try(:[],'data') || []
+      creditcard.update_from_gateway_response!(response.params['id'], sources, user)
     else
-      payment.source.gateway_error(response.message)
+      creditcard.gateway_error(response.message)
     end
   end
 end

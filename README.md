@@ -49,7 +49,7 @@ Go to Payment Methods
 
 Select "New Payment Method"
 
-Put Stripe Test Secret key in Login for testing, put Live Secret key in Login for production
+This branch uses ENV['STRIPE_API_SECRET_KEY'] to store the API key, use Stripe Test Secret key for testing, use Live Secret key for production
 
 Demo Site
 =========
