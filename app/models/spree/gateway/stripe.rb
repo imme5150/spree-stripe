@@ -47,6 +47,9 @@ class Spree::Gateway::Stripe < Gateway
   # This will update a customer if the user already has a Stripe profile ID stored in the DB
   def create_or_update_profile(creditcard, user)
     gateway_options = user.gateway_options
+    
+    gateway_options[:metadata] ||= {}
+    gateway_options[:metadata]['Name on Card'] = creditcard.name
     gateway_options[:billing_address] = { zip: creditcard.zipcode }
 
     response = provider.store(creditcard, gateway_options)
