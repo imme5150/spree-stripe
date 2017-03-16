@@ -25,7 +25,11 @@ class Spree::Gateway::Stripe < Gateway
 
     gateway_options[:customer] = user.stripe_profile_id
 
-    provider.purchase(money, nil, gateway_options)
+    if money == 0
+      ActiveMerchant::Billing::Response.new(true, 'Amount was zero - not sent to Stripe')
+    else
+      provider.purchase(money, nil, gateway_options)
+    end
   end
 
   def authorize(money, creditcard, gateway_options)
