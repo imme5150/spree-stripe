@@ -54,6 +54,10 @@ class Spree::Gateway::Stripe < Gateway
     
     gateway_options[:metadata] ||= {}
     gateway_options[:metadata]['Name on Card'] = creditcard.name
+    if gateway_options[:description].blank?
+      gateway_options[:description] = creditcard.name
+      gateway_options[:metadata]['Name'] = creditcard.name
+    end
     gateway_options[:billing_address] = { zip: creditcard.zipcode }
 
     response = provider.store(creditcard, gateway_options)
