@@ -21,7 +21,10 @@ class Spree::Gateway::Stripe < Gateway
   def purchase(money, creditcard, gateway_options)
     user = gateway_options.delete(:user)
 
-    create_or_update_profile(creditcard, user) if creditcard.number.present?
+    # Use a token to store the creditcard info in a customer object in Stripe
+    if creditcard.gateway_customer_profile_id.blank?
+      create_or_update_profile(creditcard, user)
+    end
 
     gateway_options[:customer] = user.stripe_profile_id
 
@@ -58,9 +61,8 @@ class Spree::Gateway::Stripe < Gateway
       gateway_options[:description] = creditcard.name
       gateway_options[:metadata]['Name'] = creditcard.name
     end
-    gateway_options[:billing_address] = { zip: creditcard.zipcode }
 
-    response = provider.store(creditcard, gateway_options)
+    response = provider.store(creditcard.gateway_payment_profile_id, gateway_options)
     if response.success?
       sources = response.params['sources'].try(:[],'data') || []
       creditcard.update_from_gateway_response!(response.params['id'], sources, user)
