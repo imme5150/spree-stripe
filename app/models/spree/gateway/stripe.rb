@@ -4,7 +4,7 @@ class Spree::Gateway::Stripe < Gateway
   end
 
   def provider
-    ActiveMerchant::Billing::Base.gateway_mode = options[:server].to_sym
+    ActiveMerchant::Billing::Base.mode = options[:server].to_sym
     @provider ||= provider_class.new(login:ENV['STRIPE_API_SECRET_KEY'])
   end
 
@@ -63,6 +63,7 @@ class Spree::Gateway::Stripe < Gateway
     end
 
     response = provider.store(creditcard.gateway_payment_profile_id, gateway_options)
+    response = response.responses.last if response.is_a?(ActiveMerchant::Billing::MultiResponse)
     if response.success?
       sources = response.params['sources'].try(:[],'data') || []
       creditcard.update_from_gateway_response!(response.params['id'], sources, user)
